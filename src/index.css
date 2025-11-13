@@ -1,67 +1,76 @@
+@import url('https://fonts.googleapis.com/css2?family=Amarante&display=swap');
+
+.amarante-regular {
+  font-family: "Amarante", serif;
+  font-weight: 400;
+  font-style: normal;
+}
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
-All colors MUST be HSL.
-*/
-
 @layer base {
   :root {
-    /* Base colors - Dark theme for tech/creative vibe */
-    --background: 240 20% 8%;
-    --foreground: 240 10% 98%;
+    --background: 0 0% 3.9%;
+    --foreground: 0 0% 98%;
 
-    --card: 240 18% 12%;
-    --card-foreground: 240 10% 98%;
+    --card: 0 0% 3.9%;
+    --card-foreground: 0 0% 98%;
 
-    --popover: 240 18% 12%;
-    --popover-foreground: 240 10% 98%;
+    --popover: 0 0% 3.9%;
+    --popover-foreground: 0 0% 98%;
 
-    /* Primary - Vibrant purple for main brand */
-    --primary: 270 70% 60%;
-    --primary-foreground: 240 10% 98%;
-    --primary-glow: 270 70% 70%;
+    --primary: 0 0% 98%;
+    --primary-foreground: 0 0% 9%;
 
-    /* Secondary - Deep blue-purple */
-    --secondary: 250 50% 20%;
-    --secondary-foreground: 240 10% 98%;
+    --secondary: 0 0% 14.9%;
+    --secondary-foreground: 0 0% 98%;
 
-    /* Muted - Subtle backgrounds */
-    --muted: 240 15% 15%;
-    --muted-foreground: 240 8% 65%;
+    --muted: 0 0% 14.9%;
+    --muted-foreground: 0 0% 63.9%;
 
-    /* Accent - Bright pink for highlights */
-    --accent: 330 80% 60%;
-    --accent-foreground: 240 10% 98%;
-    
-    /* Cyan - For tech highlights */
-    --cyan: 190 90% 55%;
-    --cyan-foreground: 240 20% 8%;
+    --accent: 0 0% 14.9%;
+    --accent-foreground: 0 0% 98%;
 
-    --destructive: 0 84% 60%;
-    --destructive-foreground: 240 10% 98%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 98%;
 
-    --border: 240 15% 20%;
-    --input: 240 15% 18%;
-    --ring: 270 70% 60%;
+    --border: 0 0% 14.9%;
+    --input: 0 0% 14.9%;
+    --ring: 0 0% 83.1%;
 
-    --radius: 0.75rem;
+    --radius: 0.5rem;
+  }
 
-    /* Gradients */
-    --gradient-primary: linear-gradient(135deg, hsl(270 70% 60%), hsl(330 80% 60%));
-    --gradient-secondary: linear-gradient(135deg, hsl(250 50% 20%), hsl(240 20% 8%));
-    --gradient-accent: linear-gradient(135deg, hsl(270 70% 60%), hsl(190 90% 55%));
-    --gradient-hero: linear-gradient(180deg, hsl(240 20% 8% / 0.8), hsl(240 20% 8%));
-    
-    /* Shadows */
-    --shadow-glow: 0 0 40px hsl(270 70% 60% / 0.3);
-    --shadow-glow-accent: 0 0 30px hsl(330 80% 60% / 0.4);
-    --shadow-card: 0 10px 40px hsl(240 20% 4% / 0.5);
-    
-    /* Animations */
-    --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    --transition-spring: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+  .dark {
+    --background: 0 0% 3.9%;
+    --foreground: 0 0% 98%;
+
+    --card: 0 0% 3.9%;
+    --card-foreground: 0 0% 98%;
+
+    --popover: 0 0% 3.9%;
+    --popover-foreground: 0 0% 98%;
+
+    --primary: 0 0% 98%;
+    --primary-foreground: 0 0% 9%;
+
+    --secondary: 0 0% 14.9%;
+    --secondary-foreground: 0 0% 98%;
+
+    --muted: 0 0% 14.9%;
+    --muted-foreground: 0 0% 63.9%;
+
+    --accent: 0 0% 14.9%;
+    --accent-foreground: 0 0% 98%;
+
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 0 0% 98%;
+
+    --border: 0 0% 14.9%;
+    --input: 0 0% 14.9%;
+    --ring: 0 0% 14.9%;
   }
 }
 
@@ -69,37 +78,7 @@ All colors MUST be HSL.
   * {
     @apply border-border;
   }
-
   body {
-    @apply bg-background text-foreground antialiased;
-    font-feature-settings: "kern" 1, "liga" 1;
-  }
-  
-  h1, h2, h3, h4, h5, h6 {
-    @apply font-bold tracking-tight;
-  }
-}
-
-@layer utilities {
-  .text-gradient {
-    @apply bg-clip-text text-transparent;
-    background-image: var(--gradient-primary);
-  }
-  
-  .text-gradient-accent {
-    @apply bg-clip-text text-transparent;
-    background-image: var(--gradient-accent);
-  }
-  
-  .glow-primary {
-    box-shadow: var(--shadow-glow);
-  }
-  
-  .glow-accent {
-    box-shadow: var(--shadow-glow-accent);
-  }
-  
-  .card-elevated {
-    box-shadow: var(--shadow-card);
+    @apply bg-background text-foreground;
   }
 }

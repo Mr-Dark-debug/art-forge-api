@@ -2,7 +2,7 @@
 import React from 'react';
 import type { ComponentProps, ReactNode } from 'react';
 import { motion, useReducedMotion } from 'motion/react';
-import { Github, Twitter, Linkedin } from 'lucide-react';
+import { Github } from 'lucide-react';
 
 interface FooterLink {
   title: string;
@@ -17,38 +17,21 @@ interface FooterSection {
 
 const footerLinks: FooterSection[] = [
   {
-    label: 'Product',
+    label: 'Quick Links',
     links: [
-      { title: 'API Docs', href: '#' },
-      { title: 'Pricing', href: '#' },
-      { title: 'Models', href: '#' },
-      { title: 'API Status', href: '#' },
+      { title: 'Imagine', href: 'https://imagerouter.io/imagine' },
+      { title: 'Models', href: 'https://imagerouter.io/models' },
+      { title: 'Documentation', href: 'https://docs.imagerouter.io/' },
+      { title: 'API Keys', href: 'https://imagerouter.io/api-keys' },
+      { title: 'Usage', href: 'https://imagerouter.io/api-usage' },
     ],
   },
   {
-    label: 'Company',
+    label: 'External & Legal',
     links: [
-      { title: 'About', href: '#' },
-      { title: 'Blog', href: '#' },
-      { title: 'Careers', href: '#' },
-      { title: 'Contact', href: '#' },
-    ],
-  },
-  {
-    label: 'Legal',
-    links: [
+      { title: 'GitHub', href: 'https://github.com/DaWe35/image-router', icon: Github },
+      { title: 'Privacy', href: '#' },
       { title: 'Terms of Service', href: '#' },
-      { title: 'Privacy Policy', href: '#' },
-      { title: 'Cookie Policy', href: '#' },
-      { title: 'Security', href: '#' },
-    ],
-  },
-  {
-    label: 'Social Links',
-    links: [
-      { title: 'Twitter', href: '#', icon: Twitter },
-      { title: 'GitHub', href: '#', icon: Github },
-      { title: 'LinkedIn', href: '#', icon: Linkedin },
     ],
   },
 ];

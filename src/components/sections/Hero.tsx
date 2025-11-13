@@ -1,5 +1,4 @@
-import { Button } from "@/components/ui/button";
-import { ArrowRight, Sparkles, Code2 } from "lucide-react";
+import { PlaceholdersAndVanishInput } from "@/components/ui/placeholders-and-vanish-input";
 import PrismaticBurst from "../PrismaticBurst";
 import heroImage1 from "@/assets/hero-ai-image-1.jpg";
 import heroImage2 from "@/assets/hero-ai-image-2.jpg";
@@ -24,10 +23,10 @@ export const Hero = () => {
       <div className="absolute inset-0 z-0">
         <PrismaticBurst
           animationType="rotate3d"
-          intensity={2.5}
-          speed={0.3}
-          distort={1.5}
-          rayCount={24}
+          intensity={1.5}
+          speed={0.2}
+          distort={0.5}
+          rayCount={12}
           mixBlendMode="lighten"
           colors={['#a855f7', '#ec4899', '#06b6d4']}
         />
@@ -39,34 +38,22 @@ export const Hero = () => {
       {/* Content */}
       <div className="container relative z-10 px-4 py-20">
         <div className="max-w-5xl mx-auto text-center space-y-8 animate-fade-in">
-          {/* Badge */}
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/20 text-sm">
-            <Sparkles className="w-4 h-4 text-primary animate-glow-pulse" />
-            <span className="text-gradient">80+ AI Models • One Unified API</span>
-          </div>
-
           {/* Main Headline */}
-          <h1 className="text-5xl md:text-7xl lg:text-8xl font-bold tracking-tight">
-            Supercharge Your App with{" "}
-            <span className="text-gradient">80+ AI Image Models</span>
+          <h1 className="text-5xl md:text-7xl lg:text-8xl font-bold tracking-tight amarante-regular">
+            All Your Favorite AI Art Generators, One Unified API
           </h1>
 
-          {/* Subtext */}
-          <p className="text-xl md:text-2xl text-muted-foreground max-w-3xl mx-auto">
-            Instantly access dozens of the world's best image generators via a single,
-            OpenAI-compatible API. No subscriptions, no limits—pay only for what you use.
-          </p>
-
-          {/* CTA Buttons */}
+          {/* Input */}
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center pt-4">
-            <Button variant="hero" size="xl" className="group">
-              Generate Your First Image
-              <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-            </Button>
-            <Button variant="glass" size="xl" className="group">
-              <Code2 className="w-5 h-5" />
-              Explore API Docs
-            </Button>
+            <PlaceholdersAndVanishInput
+              placeholders={[
+                "a cat sitting on a couch",
+                "a dog playing in the park",
+                "a bird flying in the sky",
+              ]}
+              onChange={(e) => console.log(e.target.value)}
+              onSubmit={(e) => e.preventDefault()}
+            />
           </div>
 
           {/* Image Showcase */}
