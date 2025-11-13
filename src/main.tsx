@@ -5,10 +5,9 @@ import "./index.css"
 // Initialize theme before rendering the app
 const initializeTheme = () => {
   const savedTheme = localStorage.getItem("theme")
-  const systemPrefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches
   
-  // Default to light mode if no preference is saved
-  const initialTheme = savedTheme === "dark" || (savedTheme !== "light" && systemPrefersDark)
+  // Always default to light mode regardless of system preferences
+  const initialTheme = savedTheme === "dark"
   
   if (initialTheme) {
     document.documentElement.classList.add("dark")

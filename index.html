@@ -10,21 +10,18 @@
     <meta property="og:title" content="ImageRouter.io - 80+ AI Image Models, One API" />
     <meta property="og:description" content="Supercharge your app with instant access to dozens of AI image generators via one unified, OpenAI-compatible API." />
     <meta property="og:type" content="website" />
-    <meta property="og:image" content="https://lovable.dev/opengraph-image-p98pqg.png" />
 
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content="ImageRouter.io - 80+ AI Image Models" />
     <meta name="twitter:description" content="One API for 80+ AI image generation models. OpenAI-compatible, pay-as-you-go." />
-    <meta name="twitter:image" content="https://lovable.dev/opengraph-image-p98pqg.png" />
 
     <!-- Theme initialization to prevent flash of incorrect theme -->
     <script>
       (function() {
         const savedTheme = localStorage.getItem('theme');
-        const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
         
-        // Default to light mode if no preference is saved
-        const initialTheme = savedTheme === 'dark' || (savedTheme !== 'light' && systemPrefersDark);
+        // Always default to light mode regardless of system preferences
+        const initialTheme = savedTheme === 'dark';
         
         if (initialTheme) {
           document.documentElement.classList.add('dark');

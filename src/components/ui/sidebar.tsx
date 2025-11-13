@@ -14,10 +14,14 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 
 const SIDEBAR_COOKIE_NAME = "sidebar:state";
 const SIDEBAR_COOKIE_MAX_AGE = 60 * 60 * 24 * 7;
-const SIDEBAR_WIDTH = "16rem";
+const SIDEBAR_WIDTH = "20rem";
 const SIDEBAR_WIDTH_MOBILE = "18rem";
 const SIDEBAR_WIDTH_ICON = "3rem";
 const SIDEBAR_KEYBOARD_SHORTCUT = "b";
+
+// Add a new constant for minimum sidebar width
+const SIDEBAR_MIN_WIDTH = "15rem";
+const SIDEBAR_MAX_WIDTH = "30rem";
 
 type SidebarContext = {
   state: "expanded" | "collapsed";
@@ -27,6 +31,9 @@ type SidebarContext = {
   setOpenMobile: (open: boolean) => void;
   isMobile: boolean;
   toggleSidebar: () => void;
+  // Add width-related properties
+  width: string;
+  setWidth: (width: string) => void;
 };
 
 const SidebarContext = React.createContext<SidebarContext | null>(null);
@@ -46,8 +53,10 @@ const SidebarProvider = React.forwardRef<
     defaultOpen?: boolean;
     open?: boolean;
     onOpenChange?: (open: boolean) => void;
+    // Add defaultWidth prop
+    defaultWidth?: string;
   }
->(({ defaultOpen = true, open: openProp, onOpenChange: setOpenProp, className, style, children, ...props }, ref) => {
+>(({ defaultOpen = true, open: openProp, onOpenChange: setOpenProp, defaultWidth = SIDEBAR_WIDTH, className, style, children, ...props }, ref) => {
   const isMobile = useIsMobile();
   const [openMobile, setOpenMobile] = React.useState(false);
 
@@ -55,6 +64,28 @@ const SidebarProvider = React.forwardRef<
   // We use openProp and setOpenProp for control from outside the component.
   const [_open, _setOpen] = React.useState(defaultOpen);
   const open = openProp ?? _open;
+  
+  // Add width state
+  const [_width, _setWidth] = React.useState(defaultWidth);
+  const width = _width; // Use _width directly instead of openProp
+  const setWidth = React.useCallback(
+    (value: string) => {
+      // Ensure width is within bounds
+      let newWidth = value;
+      if (parseFloat(value) < parseFloat(SIDEBAR_MIN_WIDTH)) {
+        newWidth = SIDEBAR_MIN_WIDTH;
+      } else if (parseFloat(value) > parseFloat(SIDEBAR_MAX_WIDTH)) {
+        newWidth = SIDEBAR_MAX_WIDTH;
+      }
+      
+      _setWidth(newWidth);
+      
+      // Store width in localStorage
+      localStorage.setItem("sidebar-width", newWidth);
+    },
+    [],
+  );
+
   const setOpen = React.useCallback(
     (value: boolean | ((value: boolean) => boolean)) => {
       const openState = typeof value === "function" ? value(open) : value;
@@ -101,8 +132,10 @@ const SidebarProvider = React.forwardRef<
       openMobile,
       setOpenMobile,
       toggleSidebar,
+      width,
+      setWidth,
     }),
-    [state, open, setOpen, isMobile, openMobile, setOpenMobile, toggleSidebar],
+    [state, open, setOpen, isMobile, openMobile, setOpenMobile, toggleSidebar, width, setWidth],
   );
 
   return (
@@ -111,7 +144,7 @@ const SidebarProvider = React.forwardRef<
         <div
           style={
             {
-              "--sidebar-width": SIDEBAR_WIDTH,
+              "--sidebar-width": width, // Use dynamic width
               "--sidebar-width-icon": SIDEBAR_WIDTH_ICON,
               ...style,
             } as React.CSSProperties
@@ -268,6 +301,79 @@ const SidebarRail = React.forwardRef<HTMLButtonElement, React.ComponentProps<"bu
   },
 );
 SidebarRail.displayName = "SidebarRail";
+
+// Create a new ResizableHandle component for manual width adjustment
+const SidebarResizeHandle = React.forwardRef<
+  HTMLDivElement,
+  React.ComponentProps<"div"> & {
+    onResize?: (width: number) => void;
+  }
+>(({ className, onResize, ...props }, ref) => {
+  const { setWidth } = useSidebar();
+  const [isResizing, setIsResizing] = React.useState(false);
+  const startXRef = React.useRef(0);
+  const startWidthRef = React.useRef(0);
+
+  const handleMouseDown = (e: React.MouseEvent) => {
+    e.preventDefault();
+    setIsResizing(true);
+    startXRef.current = e.clientX;
+    startWidthRef.current = parseFloat(
+      getComputedStyle(document.documentElement)
+        .getPropertyValue('--sidebar-width')
+        .replace('rem', '')
+    ) || parseFloat(SIDEBAR_WIDTH.replace('rem', ''));
+  };
+
+  const handleMouseMove = React.useCallback((e: MouseEvent) => {
+    if (!isResizing) return;
+    
+    const diff = e.clientX - startXRef.current;
+    const newWidthRem = startWidthRef.current + (diff / 16); // Convert pixels to rem (assuming 16px base)
+    const newWidth = `${newWidthRem}rem`;
+    
+    // Update width if within bounds
+    if (newWidthRem >= parseFloat(SIDEBAR_MIN_WIDTH) && newWidthRem <= parseFloat(SIDEBAR_MAX_WIDTH)) {
+      setWidth(newWidth);
+      onResize?.(newWidthRem);
+    }
+  }, [isResizing, onResize, setWidth]);
+
+  const handleMouseUp = React.useCallback(() => {
+    setIsResizing(false);
+  }, []);
+
+  React.useEffect(() => {
+    if (isResizing) {
+      document.addEventListener('mousemove', handleMouseMove);
+      document.addEventListener('mouseup', handleMouseUp);
+      document.body.style.userSelect = 'none';
+      document.body.style.pointerEvents = 'none';
+    }
+
+    return () => {
+      document.removeEventListener('mousemove', handleMouseMove);
+      document.removeEventListener('mouseup', handleMouseUp);
+      document.body.style.userSelect = '';
+      document.body.style.pointerEvents = '';
+    };
+  }, [isResizing, handleMouseMove, handleMouseUp]);
+
+  return (
+    <div
+      ref={ref}
+      data-sidebar="resize-handle"
+      className={cn(
+        "absolute inset-y-0 z-30 hidden w-2 -translate-x-1/2 cursor-col-resize after:absolute after:inset-y-0 after:left-1/2 after:w-px hover:after:bg-sidebar-border sm:flex",
+        "group-data-[side=left]:-right-1 group-data-[side=right]:-left-1",
+        className,
+      )}
+      onMouseDown={handleMouseDown}
+      {...props}
+    />
+  );
+});
+SidebarResizeHandle.displayName = "SidebarResizeHandle";
 
 const SidebarInset = React.forwardRef<HTMLDivElement, React.ComponentProps<"main">>(({ className, ...props }, ref) => {
   return (
@@ -609,6 +715,111 @@ const SidebarMenuSubButton = React.forwardRef<
 });
 SidebarMenuSubButton.displayName = "SidebarMenuSubButton";
 
+// Provider logo components
+const ProviderLogos = {
+  bytedance: () => import("@/assets/brand_svgs/bytedance-color.svg"),
+  dalle: () => import("@/assets/brand_svgs/dalle-color.svg"),
+  deepinfra: () => import("@/assets/brand_svgs/deepinfra-color.svg"),
+  flux: () => import("@/assets/brand_svgs/flux.svg"),
+  grok: () => import("@/assets/brand_svgs/grok.svg"),
+  ideogram: () => import("@/assets/brand_svgs/ideogram.svg"),
+  kling: () => import("@/assets/brand_svgs/kling-color.svg"),
+  metaai: () => import("@/assets/brand_svgs/metaai-color.svg"),
+  midjourney: () => import("@/assets/brand_svgs/midjourney.svg"),
+  openai: () => import("@/assets/brand_svgs/openai.svg"),
+  recraft: () => import("@/assets/brand_svgs/recraft.svg"),
+  replicate: () => import("@/assets/brand_svgs/replicate.svg"),
+  runway: () => import("@/assets/brand_svgs/runway.svg"),
+  stability: () => import("@/assets/brand_svgs/stability-color.svg"),
+  vertexai: () => import("@/assets/brand_svgs/vertexai-color.svg"),
+};
+
+// ProviderLogo component to display provider logos
+const ProviderLogo = React.forwardRef<
+  HTMLImageElement,
+  React.ImgHTMLAttributes<HTMLImageElement> & {
+    provider: string;
+    className?: string;
+  }
+>(({ provider, className, ...props }, ref) => {
+  const [logoSrc, setLogoSrc] = React.useState<string | null>(null);
+  const [loading, setLoading] = React.useState(true);
+  const [error, setError] = React.useState(false);
+
+  React.useEffect(() => {
+    const loadLogo = async () => {
+      try {
+        setLoading(true);
+        const module = await ProviderLogos[provider as keyof typeof ProviderLogos]?.();
+        if (module?.default) {
+          setLogoSrc(module.default);
+        } else {
+          setError(true);
+        }
+      } catch (err) {
+        setError(true);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (provider) {
+      loadLogo();
+    } else {
+      setError(true);
+    }
+  }, [provider]);
+
+  if (loading) {
+    return <div className={cn("h-4 w-4 bg-muted animate-pulse", className)} />;
+  }
+
+  if (error || !logoSrc) {
+    return (
+      <div 
+        ref={ref}
+        className={cn("h-4 w-4 bg-muted rounded flex items-center justify-center text-[8px] font-bold", className)}
+        {...props}
+      >
+        {provider.charAt(0).toUpperCase()}
+      </div>
+    );
+  }
+
+  return (
+    <img
+      ref={ref}
+      src={logoSrc}
+      alt={`${provider} logo`}
+      className={cn("h-4 w-4 object-contain dark:brightness-0 dark:invert", className)}
+      {...props}
+    />
+  );
+});
+ProviderLogo.displayName = "ProviderLogo";
+
+// ProviderMenuItem component to display a menu item with a provider logo
+const ProviderMenuItem = React.forwardRef<
+  HTMLButtonElement,
+  React.ComponentProps<"button"> & {
+    provider: string;
+    isActive?: boolean;
+  }
+>(({ provider, isActive = false, className, children, ...props }, ref) => {
+  return (
+    <SidebarMenuButton
+      ref={ref}
+      isActive={isActive}
+      className={cn("flex items-center gap-2", className)}
+      {...props}
+    >
+      <ProviderLogo provider={provider} className="h-4 w-4" />
+      <span>{children || provider}</span>
+    </SidebarMenuButton>
+  );
+});
+ProviderMenuItem.displayName = "ProviderMenuItem";
+
 export {
   Sidebar,
   SidebarContent,
@@ -631,7 +842,44 @@ export {
   SidebarMenuSubItem,
   SidebarProvider,
   SidebarRail,
+  SidebarResizeHandle, // Export the new component
   SidebarSeparator,
   SidebarTrigger,
+  ProviderLogo, // Export the new ProviderLogo component
+  ProviderMenuItem, // Export the new ProviderMenuItem component
   useSidebar,
 };
+
+// Example usage:
+// import { Sidebar, SidebarContent, SidebarGroup, SidebarGroupLabel, SidebarMenu, SidebarMenuItem, ProviderLogo, ProviderMenuItem } from "@/components/ui/sidebar"
+// 
+// function AppSidebar() {
+//   return (
+//     <SidebarProvider>
+//       <Sidebar>
+//         <SidebarContent>
+//           <SidebarGroup>
+//             <SidebarGroupLabel>Providers</SidebarGroupLabel>
+//             <SidebarMenu>
+//               <SidebarMenuItem>
+//                 <ProviderMenuItem provider="openai">
+//                   OpenAI Models
+//                 </ProviderMenuItem>
+//               </SidebarMenuItem>
+//               <SidebarMenuItem>
+//               <ProviderMenuItem provider="stability">
+//                 Stability AI Models
+//               </ProviderMenuItem>
+//               </SidebarMenuItem>
+//               <SidebarMenuItem>
+//                 <ProviderMenuItem provider="midjourney">
+//                   Midjourney Models
+//                 </ProviderMenuItem>
+//               </SidebarMenuItem>
+//             </SidebarMenu>
+//           </SidebarGroup>
+//         </SidebarContent>
+//       </Sidebar>
+//     </SidebarProvider>
+//   );
+// }
