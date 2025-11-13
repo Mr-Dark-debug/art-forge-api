@@ -1,5 +1,5 @@
 'use client';
-import React from 'react';
+import React, { Fragment } from 'react';
 import { Button, buttonVariants } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { MenuToggleIcon } from '@/components/ui/menu-toggle-icon';
@@ -15,6 +15,7 @@ import { AnimatedThemeToggler } from './animated-theme-toggler';
 
 export function Header() {
 	const [open, setOpen] = React.useState(false);
+	const [openDropdowns, setOpenDropdowns] = React.useState<Record<string, boolean>>({});
 	const scrolled = useScroll(10);
 
 	const links = [
@@ -51,6 +52,13 @@ export function Header() {
 			document.body.style.overflow = '';
 		};
 	}, [open]);
+
+	const toggleDropdown = (label: string) => {
+		setOpenDropdowns(prev => ({
+			...prev,
+			[label]: !prev[label]
+		}));
+	};
 
 	return (
 		<header
@@ -116,21 +124,68 @@ export function Header() {
 				>
 					<div className="grid gap-y-2">
 						{links.map((link) => (
-							<a
-								key={link.label}
-								className={buttonVariants({
-									variant: 'ghost',
-									className: 'justify-start',
-								})}
-								href={link.href}
-							>
-                {link.icon && link.icon}
-								{link.label}
-							</a>
+							<Fragment key={link.label}>
+								{link.dropdown ? (
+									<div className="w-full">
+										<Button
+											variant="ghost"
+											className="justify-between w-full"
+											onClick={() => toggleDropdown(link.label)}
+										>
+											<span className="flex items-center">
+												{link.icon && link.icon}
+												{link.label}
+											</span>
+											<ChevronDown 
+												className={cn(
+													"h-4 w-4 transition-transform",
+													openDropdowns[link.label] ? "rotate-180" : ""
+												)} 
+											/>
+										</Button>
+										{openDropdowns[link.label] && (
+											<div className="pl-4 mt-1 space-y-1">
+												{link.dropdown.map((item) => (
+													<a
+														key={item.label}
+														className={buttonVariants({
+															variant: 'ghost',
+															className: 'justify-start w-full text-sm',
+														})}
+														href={item.href}
+														onClick={() => setOpen(false)}
+													>
+														{item.label}
+													</a>
+												))}
+											</div>
+										)}
+									</div>
+								) : (
+									<a
+										className={buttonVariants({
+											variant: 'ghost',
+											className: 'justify-start',
+										})}
+										href={link.href}
+										onClick={() => setOpen(false)}
+									>
+										{link.icon && link.icon}
+										{link.label}
+									</a>
+								)}
+							</Fragment>
 						))}
 					</div>
 					<div className="flex flex-col gap-2">
-						<a href="https://imagerouter.io/login" className={buttonVariants({ variant: "outline", className: "w-full border-[#95d63f] text-black hover:bg-[#95d63f] hover:text-black dark:text-white dark:hover:text-white" })}>
+						<a 
+							href="https://imagerouter.io/login" 
+							className={buttonVariants({ 
+								variant: "outline", 
+								className: "w-full border-[#95d63f] text-black hover:bg-[#95d63f] hover:text-black dark:text-white dark:hover:text-white" 
+							})}
+							onClick={() => setOpen(false)}
+						>
 							Sign In
 						</a>
 					</div>

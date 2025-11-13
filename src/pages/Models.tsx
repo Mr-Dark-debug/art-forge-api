@@ -1,5 +1,5 @@
-import { useState, useEffect, useMemo, useCallback } from "react";
-import { Search, Grid, List, Filter, X, Copy, ChevronDown, Play, ChevronRight } from "lucide-react";
+import { useState, useEffect, useMemo } from "react";
+import { Search, Grid, List, Filter, X, Copy, ChevronDown, Play, ChevronRight, PanelLeftClose, PanelLeftOpen } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -41,31 +41,74 @@ import {
   SidebarMenuItem,
   SidebarProvider,
   SidebarRail,
+  SidebarResizeHandle,
   SidebarTrigger,
+  ProviderLogo, // Import the new ProviderLogo component
   useSidebar,
 } from "@/components/ui/sidebar";
 
 // Import brand SVGs
 import bytedanceLogo from "@/assets/brand_svgs/bytedance-color.svg";
 import dalleLogo from "@/assets/brand_svgs/dalle-color.svg";
+import deepinfraLogo from "@/assets/brand_svgs/deepinfra-color.svg";
 import fluxLogo from "@/assets/brand_svgs/flux.svg";
+import grokLogo from "@/assets/brand_svgs/grok.svg";
 import ideogramLogo from "@/assets/brand_svgs/ideogram.svg";
 import klingLogo from "@/assets/brand_svgs/kling-color.svg";
 import metaaiLogo from "@/assets/brand_svgs/metaai-color.svg";
 import midjourneyLogo from "@/assets/brand_svgs/midjourney.svg";
 import openaiLogo from "@/assets/brand_svgs/openai.svg";
 import recraftLogo from "@/assets/brand_svgs/recraft.svg";
+import replicateLogo from "@/assets/brand_svgs/replicate.svg";
+import runwayLogo from "@/assets/brand_svgs/runway.svg";
 import stabilityLogo from "@/assets/brand_svgs/stability-color.svg";
 import vertexaiLogo from "@/assets/brand_svgs/vertexai-color.svg";
 
+// Provider logos mapping
+const providerLogos: Record<string, string> = {
+  "Black Forest Labs": fluxLogo,
+  "Stability AI": stabilityLogo,
+  "OpenAI": openaiLogo,
+  "Google": vertexaiLogo,
+  "ByteDance": bytedanceLogo,
+  "Meta": metaaiLogo,
+  "Ideogram": ideogramLogo,
+  "Recraft": recraftLogo,
+  "Kling": klingLogo,
+  "Midjourney": midjourneyLogo,
+  "DeepInfra": dalleLogo,
+  "Runware": fluxLogo,
+  "Replicate": stabilityLogo,
+  // Add any missing providers
+  "bytedance": bytedanceLogo,
+  "flux": fluxLogo,
+  "ideogram": ideogramLogo,
+  "kling": klingLogo,
+  "meta": metaaiLogo,
+  "midjourney": midjourneyLogo,
+  "openai": openaiLogo,
+  "recraft": recraftLogo,
+  "stability": stabilityLogo,
+  "vertexai": vertexaiLogo,
+  "deepinfra": deepinfraLogo,
+  "replicate": replicateLogo,
+  "runway": runwayLogo,
+  "grok": grokLogo,
+};
+
 // Types
 interface Provider {
-  name: string;
+  id?: string;
+  name?: string;
   model_name: string;
   pricing: {
     type: string;
     value?: number;
-    range?: [number, number];
+    range?: {
+      min: number;
+      average: number;
+      max: number;
+    };
   };
 }
 
@@ -78,162 +121,38 @@ interface Model {
   id: string;
   name: string;
   providers: Provider[];
-  arena_score: number;
+  arena_score?: number;
   release_date: string;
   examples: Example[];
-  output: "image" | "video";
-  supported_params: string[];
-  description: string;
-  generation_count: string;
+  output: string[];
+  supported_params: {
+    quality: boolean;
+    edit: boolean;
+    mask: boolean;
+  };
+  sizes?: string[];
+  description?: string;
+  generation_count?: string;
 }
-
-// Mock data - in a real implementation, this would come from the API
-const mockModels: Model[] = [
-  {
-    id: "black-forest-labs/FLUX-1.1-pro",
-    name: "FLUX-1.1-pro Ultra",
-    providers: [
-      {
-        name: "Black Forest Labs",
-        model_name: "black-forest-labs/FLUX-1.1-pro",
-        pricing: {
-          type: "fixed",
-          value: 0.04
-        }
-      }
-    ],
-    arena_score: 1240,
-    release_date: "2024-10-15",
-    examples: [{ image: "/placeholder.svg" }],
-    output: "image",
-    supported_params: ["edit", "quality", "4K"],
-    description: "Advanced flux model for professional use cases with exceptional detail and realism.",
-    generation_count: "1.2K"
-  },
-  {
-    id: "stabilityai/stable-diffusion-3",
-    name: "Stable Diffusion 3",
-    providers: [
-      {
-        name: "Stability AI",
-        model_name: "stabilityai/stable-diffusion-3",
-        pricing: {
-          type: "fixed",
-          value: 0.03
-        }
-      }
-    ],
-    arena_score: 1180,
-    release_date: "2024-09-20",
-    examples: [{ image: "/placeholder.svg" }],
-    output: "image",
-    supported_params: ["edit", "mask", "quality"],
-    description: "Latest iteration of the popular Stable Diffusion model with improved prompt understanding.",
-    generation_count: "2.5K"
-  },
-  {
-    id: "openai/dall-e-3",
-    name: "DALL-E 3",
-    providers: [
-      {
-        name: "OpenAI",
-        model_name: "openai/dall-e-3",
-        pricing: {
-          type: "fixed",
-          value: 0.08
-        }
-      }
-    ],
-    arena_score: 1320,
-    release_date: "2024-08-10",
-    examples: [{ image: "/placeholder.svg" }],
-    output: "image",
-    supported_params: ["quality", "hd"],
-    description: "OpenAI's most advanced image generation model with exceptional text understanding.",
-    generation_count: "3.1K"
-  },
-  {
-    id: "google/imagen-3",
-    name: "Imagen 3",
-    providers: [
-      {
-        name: "Google",
-        model_name: "google/imagen-3",
-        pricing: {
-          type: "fixed",
-          value: 0.05
-        }
-      }
-    ],
-    arena_score: 1280,
-    release_date: "2024-11-01",
-    examples: [{ image: "/placeholder.svg" }],
-    output: "image",
-    supported_params: ["edit", "4K"],
-    description: "Google's latest image generation model with photorealistic capabilities.",
-    generation_count: "980"
-  },
-  {
-    id: "bytedance/sd3.5",
-    name: "SD3.5 Large",
-    providers: [
-      {
-        name: "ByteDance",
-        model_name: "bytedance/sd3.5",
-        pricing: {
-          type: "fixed",
-          value: 0.02
-        }
-      }
-    ],
-    arena_score: 1150,
-    release_date: "2024-10-05",
-    examples: [{ image: "/placeholder.svg" }],
-    output: "image",
-    supported_params: ["edit", "quality"],
-    description: "ByteDance's efficient model with excellent performance at a competitive price.",
-    generation_count: "1.8K"
-  },
-  {
-    id: "minimax/video-1",
-    name: "VideoGen Pro",
-    providers: [
-      {
-        name: "Minimax",
-        model_name: "minimax/video-1",
-        pricing: {
-          type: "fixed",
-          value: 0.15
-        }
-      }
-    ],
-    arena_score: 1080,
-    release_date: "2024-09-15",
-    examples: [{ video: "/placeholder.svg" }],
-    output: "video",
-    supported_params: ["duration", "quality"],
-    description: "High-quality video generation model with smooth motion and detail.",
-    generation_count: "420"
-  }
-];
-
-// Provider logos mapping
-const providerLogos: Record<string, string> = {
-  "Black Forest Labs": fluxLogo,
-  "Stability AI": stabilityLogo,
-  "OpenAI": openaiLogo,
-  "Google": vertexaiLogo,
-  "ByteDance": bytedanceLogo,
-  "Minimax": "NA"
-};
 
 export default function Models() {
   // Helper function to get model price
   const getModelPrice = (model: Model): number => {
+    if (!model.providers || model.providers.length === 0) return 0;
+    
     const provider = model.providers[0];
-    if (provider.pricing.type === "fixed") {
-      return provider.pricing.value || 0;
+    if (provider.pricing.type === "fixed" && provider.pricing.value === 0) {
+      return 0;
     }
+    
+    if (provider.pricing.value) {
+      return provider.pricing.value;
+    }
+    
+    if (provider.pricing.range) {
+      return provider.pricing.range.average || 0;
+    }
+    
     return 0;
   };
 
@@ -247,7 +166,9 @@ export default function Models() {
   };
 
   // State
-  const [models] = useState<Model[]>(mockModels);
+  const [models, setModels] = useState<Model[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [debouncedSearchQuery, setDebouncedSearchQuery] = useState("");
   const [sortBy, setSortBy] = useState("arena_score");
@@ -266,6 +187,49 @@ export default function Models() {
   const [isLoading, setIsLoading] = useState(false);
   const [loadedModels, setLoadedModels] = useState(12); // Initially load 12 models
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+
+  // Fetch models from API
+  useEffect(() => {
+    const fetchModels = async () => {
+      try {
+        setLoading(true);
+        const response = await fetch('https://api.imagerouter.io/v1/models');
+        const data = await response.json();
+        
+        // Convert the API response to our model format
+        const modelList: Model[] = Object.entries(data).map(([id, modelData]: [string, any]) => ({
+          id,
+          name: id.split('/').pop() || id,
+          providers: modelData.providers.map((provider: any) => ({
+            ...provider,
+            name: provider.id, // Use provider.id as name if name is not provided
+            model_name: provider.id
+          })),
+          arena_score: modelData.arena_score || 0,
+          release_date: modelData.release_date || new Date().toISOString().split('T')[0],
+          examples: modelData.examples || [],
+          output: modelData.output || ['image'],
+          supported_params: modelData.supported_params || {
+            quality: false,
+            edit: false,
+            mask: false
+          },
+          sizes: modelData.sizes,
+          description: `A powerful AI model for ${modelData.output?.join(', ') || 'image'} generation`,
+          generation_count: "0"
+        }));
+        
+        setModels(modelList);
+        setLoading(false);
+      } catch (err) {
+        console.error('Error fetching models:', err);
+        setError('Failed to load models. Please try again later.');
+        setLoading(false);
+      }
+    };
+
+    fetchModels();
+  }, []);
 
   // Debounce search query
   useEffect(() => {
@@ -306,8 +270,9 @@ export default function Models() {
       const query = debouncedSearchQuery.toLowerCase();
       result = result.filter(model => 
         model.name.toLowerCase().includes(query) ||
-        model.providers.some(p => p.name.toLowerCase().includes(query)) ||
-        model.supported_params.some(param => param.toLowerCase().includes(query))
+        model.providers.some(p => (p.name || p.id || '').toLowerCase().includes(query)) ||
+        // Convert supported_params object to array of values for search
+        Object.values(model.supported_params).some(param => String(param).toLowerCase().includes(query))
       );
     }
     
@@ -315,8 +280,8 @@ export default function Models() {
     if (filters.modelType.length > 0) {
       result = result.filter(model => {
         if (filters.modelType.includes("free") && getModelPrice(model) === 0) return true;
-        if (filters.modelType.includes("text-to-image") && model.output === "image") return true;
-        if (filters.modelType.includes("text-to-video") && model.output === "video") return true;
+        if (filters.modelType.includes("text-to-image") && model.output.includes("image")) return true;
+        if (filters.modelType.includes("text-to-video") && model.output.includes("video")) return true;
         return false;
       });
     }
@@ -325,7 +290,7 @@ export default function Models() {
     if (filters.providers.length > 0) {
       result = result.filter(model => 
         model.providers.some(provider => 
-          filters.providers.includes(provider.name)
+          filters.providers.includes(provider.name || provider.id || '')
         )
       );
     }
@@ -338,16 +303,19 @@ export default function Models() {
     
     // Apply arena score filter
     result = result.filter(model => 
-      model.arena_score >= filters.arenaScore[0] && 
-      model.arena_score <= filters.arenaScore[1]
+      (model.arena_score || 0) >= filters.arenaScore[0] && 
+      (model.arena_score || 0) <= filters.arenaScore[1]
     );
     
     // Apply features filter
     if (filters.features.length > 0) {
       result = result.filter(model => 
-        filters.features.every(feature => 
-          model.supported_params.includes(feature)
-        )
+        filters.features.every(feature => {
+          if (feature === "quality") return model.supported_params.quality;
+          if (feature === "edit") return model.supported_params.edit;
+          if (feature === "mask") return model.supported_params.mask;
+          return false;
+        })
       );
     }
     
@@ -360,7 +328,7 @@ export default function Models() {
     result.sort((a, b) => {
       switch (sortBy) {
         case "arena_score":
-          return b.arena_score - a.arena_score;
+          return (b.arena_score || 0) - (a.arena_score || 0);
         case "price_low":
           return getModelPrice(a) - getModelPrice(b);
         case "price_high":
@@ -371,8 +339,8 @@ export default function Models() {
           return a.name.localeCompare(b.name);
         case "popularity":
           // Convert generation count to number for comparison
-          const countA = parseFloat(a.generation_count.replace(/[^\d.]/g, ""));
-          const countB = parseFloat(b.generation_count.replace(/[^\d.]/g, ""));
+          const countA = parseFloat(a.generation_count?.replace(/[^\d.]/g, "") || "0");
+          const countB = parseFloat(b.generation_count?.replace(/[^\d.]/g, "") || "0");
           return countB - countA;
         default:
           return 0;
@@ -381,7 +349,7 @@ export default function Models() {
     
     // Apply pagination - only return the loaded models
     return result.slice(0, loadedModels);
-  }, [models, searchQuery, filters, sortBy, loadedModels]);
+  }, [models, debouncedSearchQuery, filters, sortBy, loadedModels]);
 
   // Copy model ID to clipboard
   const copyModelId = (id: string) => {
@@ -411,7 +379,11 @@ export default function Models() {
     const providers = new Set<string>();
     models.forEach(model => {
       model.providers.forEach(provider => {
-        providers.add(provider.name);
+        if (provider.name) {
+          providers.add(provider.name);
+        } else if (provider.id) {
+          providers.add(provider.id);
+        }
       });
     });
     return Array.from(providers);
@@ -435,7 +407,7 @@ export default function Models() {
     setTimeout(() => {
       setLoadedModels(prev => prev + 12);
       setIsLoading(false);
-    }, 1000);
+    }, 500);
   };
 
   // Load all models
@@ -443,10 +415,42 @@ export default function Models() {
     setIsLoading(true);
     // Simulate API call delay
     setTimeout(() => {
-      setLoadedModels(models.length);
+      setLoadedModels(filteredAndSortedModels.length);
       setIsLoading(false);
-    }, 1000);
+    }, 500);
   };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-background pt-16 flex items-center justify-center">
+        <Header />
+        <div className="flex flex-col items-center justify-center h-full w-full">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#95d63f] mb-4"></div>
+          <p className="text-muted-foreground">Loading models...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-background pt-16">
+        <Header />
+        <div className="flex flex-col items-center justify-center h-full p-6">
+          <div className="text-center">
+            <h2 className="text-2xl font-bold mb-2">Error Loading Models</h2>
+            <p className="text-muted-foreground mb-4">{error}</p>
+            <Button 
+              onClick={() => window.location.reload()}
+              className="bg-[#95d63f] text-black hover:bg-[#95d63f]/90"
+            >
+              Retry
+            </Button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <SidebarProvider>
@@ -461,163 +465,174 @@ export default function Models() {
             toggleFilter={toggleFilter}
             activeFilterCount={activeFilterCount}
             resetFilters={resetFilters}
+            providerLogos={providerLogos}
           />
           
           <main className="flex-1 p-6">
-            <div className="flex flex-col lg:flex-row gap-6">
-              {/* Main Content */}
-              <div className="flex-1">
-                {/* Top Controls */}
-                <div className="flex flex-col sm:flex-row gap-4 mb-6">
-                  <div className="relative flex-1">
-                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
-                    <Input
-                      placeholder="Search models, providers, features..."
-                      className="pl-10 border-[#95d63f] focus-visible:ring-[#95d63f] hover:border-[#95d63f]"
-                      value={searchQuery}
-                      onChange={(e) => setSearchQuery(e.target.value)}
-                    />
-                  </div>
+            {/* Add a visible trigger button only for mobile when sidebar is collapsed */}
+            <div className="md:hidden mb-4">
+              <SidebarTrigger className="border-[#95d63f] text-[#95d63f] hover:bg-[#95d63f] hover:text-black" />
+            </div>
+            
+            {/* Test ProviderLogo components - this is just for verification */}
+            <div className="hidden">
+              <ProviderLogo provider="openai" />
+              <ProviderLogo provider="stability" />
+              <ProviderLogo provider="midjourney" />
+            </div>
+            
+            <div className="flex flex-col gap-6">
+              {/* Top Controls */}
+              <div className="flex flex-col sm:flex-row gap-4">
+                <div className="relative flex-1">
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
+                  <Input
+                    placeholder="Search models, providers, features..."
+                    className="pl-10 border-[#95d63f] focus-visible:ring-[#95d63f] hover:border-[#95d63f]"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                  />
+                </div>
+                
+                <div className="flex gap-2">
+                  <Select value={sortBy} onValueChange={setSortBy}>
+                    <SelectTrigger className="w-[180px] border-[#95d63f] focus:ring-[#95d63f] hover:border-[#95d63f]">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="arena_score">Arena Score (high to low)</SelectItem>
+                      <SelectItem value="price_low">Price (low to high)</SelectItem>
+                      <SelectItem value="price_high">Price (high to low)</SelectItem>
+                      <SelectItem value="date">Date (newest first)</SelectItem>
+                      <SelectItem value="name">Name (A-Z)</SelectItem>
+                      <SelectItem value="popularity">Popularity (most used)</SelectItem>
+                    </SelectContent>
+                  </Select>
                   
-                  <div className="flex gap-2">
-                    <Select value={sortBy} onValueChange={setSortBy}>
-                      <SelectTrigger className="w-[180px] border-[#95d63f] focus:ring-[#95d63f] hover:border-[#95d63f]">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="arena_score">Arena Score (high to low)</SelectItem>
-                        <SelectItem value="price_low">Price (low to high)</SelectItem>
-                        <SelectItem value="price_high">Price (high to low)</SelectItem>
-                        <SelectItem value="date">Date (newest first)</SelectItem>
-                        <SelectItem value="name">Name (A-Z)</SelectItem>
-                        <SelectItem value="popularity">Popularity (most used)</SelectItem>
-                      </SelectContent>
-                    </Select>
-                    
-                    <Button 
-                      variant="outline" 
-                      size="icon"
-                      className="border-[#95d63f] text-[#95d63f] hover:bg-[#95d63f] hover:text-black dark:hover:text-white"
-                      onClick={() => setViewMode(viewMode === "grid" ? "list" : "grid")}
-                    >
-                      {viewMode === "grid" ? <List className="h-4 w-4" /> : <Grid className="h-4 w-4" />}
-                    </Button>
-                    
-                    <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
-                      <SheetTrigger asChild>
-                        <Button 
-                          variant="outline" 
-                          size="icon" 
-                          className="lg:hidden border-[#95d63f] text-[#95d63f] hover:bg-[#95d63f] hover:text-black dark:hover:text-white"
-                        >
-                          <Filter className="h-4 w-4" />
-                        </Button>
-                      </SheetTrigger>
-                      <SheetContent side="left" className="w-80 p-0">
-                        <SheetHeader className="p-4 border-b">
-                          <SheetTitle>Filters</SheetTitle>
-                        </SheetHeader>
-                        <div className="p-4 overflow-y-auto">
-                          <Filters 
-                            filters={filters}
-                            onFilterChange={setFilters}
-                            uniqueProviders={uniqueProviders}
-                            toggleFilter={toggleFilter}
-                          />
-                        </div>
-                      </SheetContent>
-                    </Sheet>
-                  </div>
+                  <Button 
+                    variant="outline" 
+                    size="icon"
+                    className="border-[#95d63f] text-[#95d63f] hover:bg-[#95d63f] hover:text-black dark:hover:text-white"
+                    onClick={() => setViewMode(viewMode === "grid" ? "list" : "grid")}
+                  >
+                    {viewMode === "grid" ? <List className="h-4 w-4" /> : <Grid className="h-4 w-4" />}
+                  </Button>
+                  
+                  <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
+                    <SheetTrigger asChild>
+                      <Button 
+                        variant="outline" 
+                        size="icon" 
+                        className="lg:hidden border-[#95d63f] text-[#95d63f] hover:bg-[#95d63f] hover:text-black dark:hover:text-white"
+                      >
+                        <Filter className="h-4 w-4" />
+                      </Button>
+                    </SheetTrigger>
+                    <SheetContent side="left" className="w-80 p-0">
+                      <SheetHeader className="p-4 border-b">
+                        <SheetTitle>Filters</SheetTitle>
+                      </SheetHeader>
+                      <div className="p-4 overflow-y-auto">
+                        <Filters 
+                          filters={filters}
+                          onFilterChange={setFilters}
+                          uniqueProviders={uniqueProviders}
+                          toggleFilter={toggleFilter}
+                          providerLogos={providerLogos}
+                        />
+                      </div>
+                    </SheetContent>
+                  </Sheet>
                 </div>
+              </div>
 
-                {/* Current Filters */}
-                <div className="flex flex-wrap gap-2 mb-6">
-                  <Badge variant="secondary" className="bg-[#95d63f] text-black hover:bg-[#95d63f]">
-                    All
-                  </Badge>
-                  <Badge variant="secondary" className="bg-[#95d63f] text-black hover:bg-[#95d63f]">
-                    Text to Image
-                  </Badge>
-                  <Badge variant="secondary" className="bg-[#95d63f] text-black hover:bg-[#95d63f]">
-                    Image to Image
-                  </Badge>
-                  <Badge variant="secondary" className="bg-[#95d63f] text-black hover:bg-[#95d63f]">
-                    Text to Video
-                  </Badge>
-                  <Badge variant="secondary" className="bg-[#95d63f] text-black hover:bg-[#95d63f]">
-                    Image to Video
-                  </Badge>
-                  <Badge variant="secondary" className="bg-[#95d63f] text-black hover:bg-[#95d63f]">
-                    Free
-                  </Badge>
+              {/* Current Filters */}
+              <div className="flex flex-wrap gap-2 mb-6">
+                <Badge variant="secondary" className="bg-[#95d63f] text-black hover:bg-[#95d63f]">
+                  All
+                </Badge>
+                <Badge variant="secondary" className="bg-[#95d63f] text-black hover:bg-[#95d63f]">
+                  Text to Image
+                </Badge>
+                <Badge variant="secondary" className="bg-[#95d63f] text-black hover:bg-[#95d63f]">
+                  Image to Image
+                </Badge>
+                <Badge variant="secondary" className="bg-[#95d63f] text-black hover:bg-[#95d63f]">
+                  Text to Video
+                </Badge>
+                <Badge variant="secondary" className="bg-[#95d63f] text-black hover:bg-[#95d63f]">
+                  Image to Video
+                </Badge>
+                <Badge variant="secondary" className="bg-[#95d63f] text-black hover:bg-[#95d63f]">
+                  Free
+                </Badge>
+              </div>
+
+              {/* Model Count */}
+              <div className="mb-6">
+                <p className="text-sm text-muted-foreground">
+                  Showing {filteredAndSortedModels.length} of {models.length} models
+                </p>
+              </div>
+
+              {/* Models Grid/List */}
+              {filteredAndSortedModels.length > 0 ? (
+                <div className={viewMode === "grid" 
+                  ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" 
+                  : "space-y-4"
+                }>
+                  {filteredAndSortedModels.map((model) => (
+                    <ModelCard 
+                      key={model.id} 
+                      model={model} 
+                      viewMode={viewMode}
+                      isNew={isNewModel(model.release_date)}
+                      onCopy={copyModelId}
+                      providerLogos={providerLogos}
+                    />
+                  ))}
                 </div>
-
-                {/* Model Count */}
-                <div className="mb-6">
-                  <p className="text-sm text-muted-foreground">
-                    Showing {filteredAndSortedModels.length} of {models.length} models
+              ) : (
+                <div className="text-center py-12">
+                  <div className="text-2xl font-bold mb-2">No models found</div>
+                  <p className="text-muted-foreground mb-4">
+                    No models match your search. Try different keywords or clear filters.
                   </p>
+                  <Button 
+                    onClick={resetFilters}
+                    className="bg-[#95d63f] text-black hover:bg-[#95d63f]/90"
+                  >
+                    Browse all models
+                  </Button>
                 </div>
+              )}
 
-                {/* Models Grid/List */}
-                {filteredAndSortedModels.length > 0 ? (
-                  <div className={viewMode === "grid" 
-                    ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" 
-                    : "space-y-4"
-                  }>
-                    {filteredAndSortedModels.map((model) => (
-                      <ModelCard 
-                        key={model.id} 
-                        model={model} 
-                        viewMode={viewMode}
-                        isNew={isNewModel(model.release_date)}
-                        onCopy={copyModelId}
-                        providerLogos={providerLogos}
-                      />
-                    ))}
+              {/* Load More */}
+              <div className="mt-8 text-center">
+                {isLoading ? (
+                  <div className="flex justify-center items-center">
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#95d63f]"></div>
                   </div>
                 ) : (
-                  <div className="text-center py-12">
-                    <div className="text-2xl font-bold mb-2">No models found</div>
-                    <p className="text-muted-foreground mb-4">
-                      No models match your search. Try different keywords or clear filters.
-                    </p>
+                  <div className="flex flex-col sm:flex-row gap-2 justify-center">
                     <Button 
-                      onClick={resetFilters}
-                      className="bg-[#95d63f] text-black hover:bg-[#95d63f]/90"
+                      variant="outline" 
+                      onClick={loadMoreModels}
+                      disabled={loadedModels >= filteredAndSortedModels.length}
+                      className="border-[#95d63f] text-[#95d63f] hover:bg-[#95d63f] hover:text-black dark:hover:text-white"
                     >
-                      Browse all models
+                      Load More
+                    </Button>
+                    <Button 
+                      variant="outline" 
+                      onClick={loadAllModels}
+                      disabled={loadedModels >= filteredAndSortedModels.length}
+                      className="border-[#95d63f] text-[#95d63f] hover:bg-[#95d63f] hover:text-black dark:hover:text-white"
+                    >
+                      Load All
                     </Button>
                   </div>
                 )}
-
-                {/* Load More */}
-                <div className="mt-8 text-center">
-                  {isLoading ? (
-                    <div className="flex justify-center items-center">
-                      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#95d63f]"></div>
-                    </div>
-                  ) : (
-                    <div className="flex flex-col sm:flex-row gap-2 justify-center">
-                      <Button 
-                        variant="outline" 
-                        onClick={loadMoreModels}
-                        disabled={loadedModels >= filteredAndSortedModels.length}
-                        className="border-[#95d63f] text-[#95d63f] hover:bg-[#95d63f] hover:text-black dark:hover:text-white"
-                      >
-                        Load More
-                      </Button>
-                      <Button 
-                        variant="outline" 
-                        onClick={loadAllModels}
-                        disabled={loadedModels >= filteredAndSortedModels.length}
-                        className="border-[#95d63f] text-[#95d63f] hover:bg-[#95d63f] hover:text-black dark:hover:text-white"
-                      >
-                        Load All
-                      </Button>
-                    </div>
-                  )}
-                </div>
               </div>
             </div>
           </main>
@@ -634,7 +649,8 @@ function AppSidebar({
   uniqueProviders, 
   toggleFilter, 
   activeFilterCount, 
-  resetFilters 
+  resetFilters,
+  providerLogos
 }: { 
   filters: any; 
   onFilterChange: (filters: any) => void;
@@ -642,61 +658,96 @@ function AppSidebar({
   toggleFilter: (filterType: string, value: string) => void;
   activeFilterCount: number;
   resetFilters: () => void;
+  providerLogos: Record<string, string>;
 }) {
+  const { state, toggleSidebar } = useSidebar();
+  
   return (
-    <Sidebar className="border-r pt-16">
-      <SidebarHeader>
-        <div className="flex items-center justify-between p-4 bg-card rounded-lg border">
-          <h2 className="text-lg font-semibold">Filters</h2>
-          {activeFilterCount > 0 && (
-            <Button 
-              variant="ghost" 
-              size="sm" 
-              onClick={resetFilters}
-              className="text-xs h-6 px-2"
-            >
-              Clear all
-            </Button>
-          )}
-        </div>
-      </SidebarHeader>
-      <SidebarContent>
-        <div className="bg-card rounded-lg border m-2">
-          <div className="p-4">
-            <div className="flex items-center justify-between w-full p-4 text-left">
-              <span className="font-medium">Filter Options</span>
-              <ChevronRight className="h-4 w-4" />
-            </div>
-            <div className="p-4 pt-0 border-t">
-              <Filters 
-                filters={filters}
-                onFilterChange={onFilterChange}
-                uniqueProviders={uniqueProviders}
-                toggleFilter={toggleFilter}
-              />
+    <>
+      <Sidebar className="border-r pt-16">
+        <SidebarHeader>
+          <div className="flex items-center justify-between p-4 bg-card rounded-lg border">
+            <h2 className="text-lg font-semibold">Filters</h2>
+            {activeFilterCount > 0 && (
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                onClick={resetFilters}
+                className="text-xs h-6 px-2"
+              >
+                Clear all
+              </Button>
+            )}
+          </div>
+        </SidebarHeader>
+        <SidebarContent className="overflow-y-auto">
+          {/* Make the sidebar content scrollable */}
+          <div className="bg-card rounded-lg border m-2 h-full flex flex-col">
+            <div className="p-4 flex-1 overflow-y-auto">
+              <div className="flex items-center justify-between w-full p-4 text-left">
+                {/* Remove the "Filter Options" text and add toggle icon */}
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  onClick={toggleSidebar}
+                  className="p-0 h-4 w-4"
+                >
+                  {state === "expanded" ? (
+                    <PanelLeftClose className="h-4 w-4" />
+                  ) : (
+                    <PanelLeftOpen className="h-4 w-4" />
+                  )}
+                </Button>
+                <ChevronRight className="h-4 w-4" />
+              </div>
+              <div className="p-4 pt-0 border-t">
+                <Filters 
+                  filters={filters}
+                  onFilterChange={onFilterChange}
+                  uniqueProviders={uniqueProviders}
+                  toggleFilter={toggleFilter}
+                  providerLogos={providerLogos}
+                />
+              </div>
             </div>
           </div>
+        </SidebarContent>
+        <SidebarFooter>
+          <div className="flex flex-col gap-2 p-2">
+            <Button 
+              variant="outline" 
+              onClick={resetFilters}
+              disabled={activeFilterCount === 0}
+              className="border-[#95d63f] text-[#95d63f] hover:bg-black hover:text-white w-full"
+            >
+              Reset Filters
+            </Button>
+            <Button 
+              className="bg-[#95d63f] text-black hover:bg-[#95d63f]/90 w-full"
+            >
+              Request Models
+            </Button>
+          </div>
+        </SidebarFooter>
+        {/* Add the resize handle */}
+        <SidebarResizeHandle />
+        <SidebarRail />
+      </Sidebar>
+      
+      {/* Add a trigger button that appears when sidebar is collapsed on desktop */}
+      {state === "collapsed" && (
+        <div className="hidden md:block fixed top-20 left-0 z-20">
+          <SidebarTrigger className="border-[#95d63f] text-[#95d63f] hover:bg-[#95d63f] hover:text-black rounded-r-full rounded-l-none pl-2 pr-3 py-2" />
         </div>
-      </SidebarContent>
-      <SidebarFooter>
-        <div className="flex flex-col gap-2 p-2">
-          <Button 
-            variant="outline" 
-            onClick={resetFilters}
-            disabled={activeFilterCount === 0}
-            className="border-[#95d63f] text-[#95d63f] hover:bg-black hover:text-white w-full"
-          >
-            Reset Filters
-          </Button>
-          <Button 
-            className="bg-[#95d63f] text-black hover:bg-[#95d63f]/90 w-full"
-          >
-            Request Models
-          </Button>
+      )}
+      
+      {/* Add a visible trigger button only for mobile when sidebar is collapsed */}
+      {state === "collapsed" && (
+        <div className="md:hidden fixed top-20 left-0 z-20">
+          <SidebarTrigger className="border-[#95d63f] text-[#95d63f] hover:bg-[#95d63f] hover:text-black rounded-r-full rounded-l-none pl-2 pr-3 py-2" />
         </div>
-      </SidebarFooter>
-      <SidebarRail />
-    </Sidebar>
+      )}
+    </>
   );
 }
 
@@ -705,12 +756,14 @@ function Filters({
   filters, 
   onFilterChange, 
   uniqueProviders,
-  toggleFilter
+  toggleFilter,
+  providerLogos
 }: { 
   filters: any; 
   onFilterChange: (filters: any) => void;
   uniqueProviders: string[];
   toggleFilter: (filterType: string, value: string) => void;
+  providerLogos: Record<string, string>;
 }) {
   return (
     <div className="space-y-6">
@@ -820,17 +873,10 @@ function Filters({
                       htmlFor={`provider-${provider}`} 
                       className="ml-2 text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 flex items-center"
                     >
-                      {providerLogos[provider] && providerLogos[provider] !== "NA" ? (
-                        <img 
-                          src={providerLogos[provider]} 
-                          alt={provider} 
-                          className="w-4 h-4 mr-2 dark:brightness-0 dark:invert" 
-                        />
-                      ) : (
-                        <span className="w-4 h-4 mr-2 text-xs flex items-center justify-center bg-muted rounded">
-                          NA
-                        </span>
-                      )}
+                      <ProviderLogo 
+                        provider={provider.toLowerCase()} 
+                        className="w-4 h-4 mr-2" 
+                      />
                       {provider}
                     </label>
                   </div>
@@ -1041,8 +1087,8 @@ function ModelCard({
   const providerLogo = providerLogos[providerName];
   
   return (
-    <Card className={`overflow-hidden hover:shadow-lg transition-all ${viewMode === 'list' ? 'flex' : ''}`}>
-      <div className={`${viewMode === 'list' ? 'w-1/3' : ''}`}>
+    <Card className={`overflow-hidden hover:shadow-lg transition-all ${viewMode === 'list' ? 'flex flex-col sm:flex-row' : ''}`}>
+      <div className={`${viewMode === 'list' ? 'w-full sm:w-1/3' : ''}`}>
         <div className="relative aspect-video bg-muted">
           {model.examples[0]?.video ? (
             <div className="w-full h-full flex items-center justify-center bg-black/10">
@@ -1097,17 +1143,10 @@ function ModelCard({
         </div>
         
         <div className="flex items-center gap-2 mt-1">
-          {providerLogo && providerLogo !== "NA" ? (
-            <img 
-              src={providerLogo} 
-              alt={providerName} 
-              className="w-6 h-6 object-contain dark:brightness-0 dark:invert"
-            />
-          ) : (
-            <span className="text-xs bg-muted rounded-full w-6 h-6 flex items-center justify-center">
-              NA
-            </span>
-          )}
+          <ProviderLogo 
+            provider={providerName.toLowerCase()} 
+            className="w-6 h-6 object-contain" 
+          />
           <span className="text-sm text-muted-foreground">{providerName}</span>
         </div>
         
@@ -1116,14 +1155,16 @@ function ModelCard({
         </p>
         
         <div className="flex flex-wrap gap-1 mt-3">
-          {model.supported_params.map((param) => (
-            <Badge key={param} variant="outline" className="text-xs border-[#95d63f] text-[#95d63f]">
-              {param}
-            </Badge>
-          ))}
+          {Object.entries(model.supported_params)
+            .filter(([key, value]) => value) // Only show params that are true
+            .map(([param, value]) => (
+              <Badge key={param} variant="outline" className="text-xs border-[#95d63f] text-[#95d63f]">
+                {param}
+              </Badge>
+            ))}
         </div>
         
-        <div className="flex justify-between items-center mt-4">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mt-4 gap-2">
           <span className="text-sm text-muted-foreground whitespace-nowrap">
             {model.generation_count} generations
           </span>
