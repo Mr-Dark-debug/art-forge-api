@@ -5,7 +5,7 @@ import { Demo } from "@/components/sections/Demo";
 import { ApiDocs } from "@/components/sections/ApiDocs";
 import { Pricing } from "@/components/sections/Pricing";
 import { FAQ } from "@/components/sections/FAQ";
-import { Footer } from "@/components/sections/Footer";
+import { Footer } from "@/components/ui/footer-section";
 
 const Index = () => {
   return (
