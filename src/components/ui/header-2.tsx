@@ -72,7 +72,7 @@ export function Header() {
 					},
 				)}
 			>
-				<a href="https://imagerouter.io/" className="font-bold text-lg">imagerouter.io</a>
+				<a href="/" className="font-bold text-lg">imagerouter.io</a>
 				<div className="hidden items-center gap-2 md:flex">
 					{links.map((link, i) =>
             link.dropdown ? (
