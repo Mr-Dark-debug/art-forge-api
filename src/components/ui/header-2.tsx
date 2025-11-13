@@ -32,7 +32,7 @@ export function Header() {
         { label: "Zapier Integration", href: "https://docs.imagerouter.io/integrations/zapier-integration" },
       ],
     },
-    { label: "Models", href: "https://imagerouter.io/models" },
+    { label: "Models", href: "/models" },
     { label: "Pricing", href: "#pricing" },
     { label: "Docs", href: "https://docs.imagerouter.io/" },
   ];
