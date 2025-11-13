@@ -1,0 +1,61 @@
+# ImageRouter.io - AI Image Generation Platform
+
+ImageRouter.io is a unified platform that provides access to 80+ AI image generation models through a single, OpenAI-compatible API. Developers can integrate multiple AI art generators into their applications without changing code, using a pay-as-you-go pricing model with no subscriptions.
+
+## Documentation
+
+### API Documentation
+- **URL**: https://docs.imagerouter.io/
+- **Description**: Comprehensive API documentation covering authentication, endpoints, model parameters, and integration examples for all supported AI image generation models.
+
+### Developer Integration Guide
+- **URL**: https://imagerouter.io/#developer-friendly
+- **Description**: Code examples and integration guides for popular programming languages including Python, JavaScript, Java, C++, Rust, and Go with ready-to-use code snippets.
+
+## Products & Services
+
+### Main Platform
+- **URL**: https://imagerouter.io/
+- **Description**: Landing page showcasing the core service - access to 80+ AI image models through one unified API with OpenAI compatibility, no subscription fees, and pay-as-you-go pricing.
+
+### Pricing Information
+- **URL**: https://imagerouter.io/#pricing
+- **Description**: Detailed pricing structure with free tier options, pay-as-you-go model starting from $0.001 per image, and enterprise plans. No minimums or hidden fees.
+
+### Model Catalog
+- **URL**: https://imagerouter.io/models
+- **Description**: Comprehensive catalog of 80+ supported AI image generation models including Stable Diffusion, SDXL, Kandinsky, and more with usage examples.
+
+## Tools & Integrations
+
+### Background Removal Tool
+- **URL**: https://imagerouter.io/tools/background-removal
+- **Description**: Specialized tool for removing backgrounds from images using AI with simple API integration.
+
+### SVG Vector Generation
+- **URL**: https://imagerouter.io/tools/vector-generation
+- **Description**: AI-powered tool for converting images to SVG vector graphics with scalable output for design applications.
+
+### Open WebUI Plugin
+- **URL**: https://docs.imagerouter.io/integrations/open-webui-plugin
+- **Description**: Plugin for integrating ImageRouter.io with Open WebUI for local AI model management and interface.
+
+## Policies
+
+### Terms of Service
+- **URL**: https://imagerouter.io/terms
+- **Description**: Legal terms governing the use of ImageRouter.io services including user responsibilities, service limitations, and liability disclaimers.
+
+### Privacy Policy
+- **URL**: https://imagerouter.io/privacy
+- **Description**: Privacy policy detailing data collection, usage, storage practices, and user rights regarding personal information and generated content.
+
+## Support
+
+### Frequently Asked Questions
+- **URL**: https://imagerouter.io/#faq
+- **Description**: Answers to common questions about API compatibility, model availability, pricing, security, integrations, and support options.
+
+### Community Support
+- **URL**: https://discord.gg/imagerouter
+- **Description**: Community Discord server for developer support, feature requests, and peer-to-peer assistance with integrations.

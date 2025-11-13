@@ -1,111 +1,94 @@
-import { Button } from "@/components/ui/button";
-import { ArrowRight, Sparkles, Code2 } from "lucide-react";
-import PrismaticBurst from "../PrismaticBurst";
-import heroImage1 from "@/assets/hero-ai-image-1.jpg";
-import heroImage2 from "@/assets/hero-ai-image-2.jpg";
-import heroImage3 from "@/assets/hero-ai-image-3.jpg";
+import { PlaceholdersAndVanishInput } from "@/components/ui/placeholders-and-vanish-input";
+import lightBg from "@/assets/light-bg.png";
+import darkBg from "@/assets/dark-bg.png";
+import { ButtonColorful } from "@/components/ui/button-colorful";
+import { UpgradeBanner } from "@/components/ui/upgrade-banner";
+import { Key } from "lucide-react";
 import { useState, useEffect } from "react";
 
-const heroImages = [heroImage1, heroImage2, heroImage3];
-
 export const Hero = () => {
-  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [isDarkMode, setIsDarkMode] = useState(false);
 
   useEffect(() => {
-    const interval = setInterval(() => {
-      setCurrentImageIndex((prev) => (prev + 1) % heroImages.length);
-    }, 4000);
-    return () => clearInterval(interval);
+    // Check initial theme
+    setIsDarkMode(document.documentElement.classList.contains('dark'));
+    
+    // Watch for theme changes
+    const observer = new MutationObserver(() => {
+      setIsDarkMode(document.documentElement.classList.contains('dark'));
+    });
+    
+    observer.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ['class']
+    });
+    
+    return () => observer.disconnect();
   }, []);
 
   return (
     <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
-      {/* PrismaticBurst Background */}
-      <div className="absolute inset-0 z-0">
-        <PrismaticBurst
-          animationType="rotate3d"
-          intensity={2.5}
-          speed={0.3}
-          distort={1.5}
-          rayCount={24}
-          mixBlendMode="lighten"
-          colors={['#a855f7', '#ec4899', '#06b6d4']}
-        />
-      </div>
-
+      {/* Background image */}
+      <div 
+        className="absolute inset-0 z-0 bg-cover bg-center bg-no-repeat"
+        style={{ 
+          backgroundImage: `url(${isDarkMode ? darkBg : lightBg})`
+        }}
+      />
+      
       {/* Gradient Overlay */}
       <div className="absolute inset-0 bg-gradient-to-b from-background/20 via-background/60 to-background z-0" />
 
       {/* Content */}
-      <div className="container relative z-10 px-4 py-20">
-        <div className="max-w-5xl mx-auto text-center space-y-8 animate-fade-in">
-          {/* Badge */}
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/20 text-sm">
-            <Sparkles className="w-4 h-4 text-primary animate-glow-pulse" />
-            <span className="text-gradient">80+ AI Models • One Unified API</span>
+      <div className="container relative z-10 px-4 py-24">
+        <div className="max-w-3xl mx-auto text-center space-y-6 animate-fade-in">
+          {/* Upgrade Banner */}
+          <div className="flex justify-center">
+            <UpgradeBanner 
+              buttonText="Upgrade to Pro" 
+              description="and use the premium models" 
+              onClick={() => console.log("Upgrade clicked")}
+            />
+          </div>
+          
+          {/* Main Headline - Two Lines */}
+          <div className="space-y-2">
+            <h1 className="text-3xl md:text-5xl lg:text-6xl font-bold tracking-tight inter-bold">
+              All Your Favorite AI Art Generators
+            </h1>
+            <h2 className="text-3xl md:text-5xl lg:text-6xl font-bold tracking-tight inter-bold">
+              One Unified API
+            </h2>
           </div>
 
-          {/* Main Headline */}
-          <h1 className="text-5xl md:text-7xl lg:text-8xl font-bold tracking-tight">
-            Supercharge Your App with{" "}
-            <span className="text-gradient">80+ AI Image Models</span>
-          </h1>
-
-          {/* Subtext */}
-          <p className="text-xl md:text-2xl text-muted-foreground max-w-3xl mx-auto">
-            Instantly access dozens of the world's best image generators via a single,
-            OpenAI-compatible API. No subscriptions, no limits—pay only for what you use.
+          {/* Subtitle */}
+          <p className="text-lg md:text-xl text-muted-foreground inter-semibold">
+            Access 80+ AI image generation models, all through an OpenAI-compatible API
           </p>
 
+          {/* Input */}
+          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center pt-6">
+            <PlaceholdersAndVanishInput
+              placeholders={[
+                "a cat sitting on a couch",
+                "a dog playing in the park",
+                "a bird flying in the sky",
+              ]}
+              onChange={(e) => console.log(e.target.value)}
+              onSubmit={(e) => e.preventDefault()}
+            />
+          </div>
+
           {/* CTA Buttons */}
-          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center pt-4">
-            <Button variant="hero" size="xl" className="group">
-              Generate Your First Image
-              <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-            </Button>
-            <Button variant="glass" size="xl" className="group">
-              <Code2 className="w-5 h-5" />
-              Explore API Docs
-            </Button>
-          </div>
-
-          {/* Image Showcase */}
-          <div className="pt-12">
-            <div className="relative w-full max-w-4xl mx-auto rounded-2xl overflow-hidden card-elevated">
-              <div className="aspect-video relative">
-                {heroImages.map((img, idx) => (
-                  <img
-                    key={idx}
-                    src={img}
-                    alt={`AI Generated Example ${idx + 1}`}
-                    className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ${
-                      idx === currentImageIndex ? 'opacity-100' : 'opacity-0'
-                    }`}
-                  />
-                ))}
-              </div>
-              <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-background/90 to-transparent p-6">
-                <p className="text-sm text-muted-foreground">
-                  Real examples generated with ImageRouter.io
-                </p>
-              </div>
-            </div>
-          </div>
-
-          {/* Stats */}
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-8 pt-12 max-w-3xl mx-auto">
-            <div className="space-y-2">
-              <div className="text-4xl font-bold text-gradient">80+</div>
-              <div className="text-sm text-muted-foreground">AI Models</div>
-            </div>
-            <div className="space-y-2">
-              <div className="text-4xl font-bold text-gradient">100K+</div>
-              <div className="text-sm text-muted-foreground">Images Generated</div>
-            </div>
-            <div className="space-y-2 col-span-2 md:col-span-1">
-              <div className="text-4xl font-bold text-gradient">98%</div>
-              <div className="text-sm text-muted-foreground">Uptime SLA</div>
-            </div>
+          <div className="pt-8 flex flex-col sm:flex-row gap-4 justify-center items-center">
+            <ButtonColorful label="Get Started" />
+            <a 
+              href="https://imagerouter.io/api-keys" 
+              className="inline-flex h-10 items-center justify-center rounded-md px-6 py-2 text-base font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 border border-[#95d63f] text-[#95d63f] hover:bg-[#95d63f] hover:text-black dark:hover:text-white"
+            >
+              <Key className="w-4 h-4 mr-2" />
+              Get API Key
+            </a>
           </div>
         </div>
       </div>
