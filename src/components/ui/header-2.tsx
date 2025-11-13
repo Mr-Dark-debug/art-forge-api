@@ -10,7 +10,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { ChevronDown } from "lucide-react";
+import { ChevronDown, Sparkles } from "lucide-react";
 import { AnimatedThemeToggler } from './animated-theme-toggler';
 
 export function Header() {
@@ -18,7 +18,7 @@ export function Header() {
 	const scrolled = useScroll(10);
 
 	const links = [
-    { label: "Imagine", href: "https://imagerouter.io/imagine" },
+    { label: "Imagine", href: "https://imagerouter.io/imagine", icon: <Sparkles className="w-4 h-4 mr-2" /> },
     {
       label: "Tools",
       href: "#",
@@ -33,7 +33,7 @@ export function Header() {
       ],
     },
     { label: "Models", href: "https://imagerouter.io/models" },
-    { label: "Pricing", href: "https://imagerouter.io/pricing" },
+    { label: "Pricing", href: "#pricing" },
     { label: "Docs", href: "https://docs.imagerouter.io/" },
   ];
 
@@ -54,30 +54,24 @@ export function Header() {
 
 	return (
 		<header
-			className={cn(
-				'sticky top-0 z-50 mx-auto w-full max-w-5xl border-b border-transparent md:rounded-md md:border md:transition-all md:ease-out',
-				{
-					'bg-background/95 supports-[backdrop-filter]:bg-background/50 border-border backdrop-blur-lg md:top-4 md:max-w-4xl md:shadow':
-						scrolled && !open,
-					'bg-background/90': open,
-				},
-			)}
+			className="fixed top-0 left-0 right-0 z-50 w-full border-b border-transparent bg-background/95 supports-[backdrop-filter]:bg-background/50 backdrop-blur-lg"
 		>
 			<nav
 				className={cn(
-					'flex h-14 w-full items-center justify-between px-4 md:h-12 md:transition-all md:ease-out',
+					'flex h-14 w-full items-center justify-between px-4 md:h-12 md:transition-all md:ease-out mx-auto max-w-5xl',
 					{
 						'md:px-2': scrolled,
 					},
 				)}
 			>
-				<a href="https://imagerouter.io/" className="font-bold text-lg">imagrouter</a>
+				<a href="https://imagerouter.io/" className="font-bold text-lg">imagerouter.io</a>
 				<div className="hidden items-center gap-2 md:flex">
 					{links.map((link, i) =>
             link.dropdown ? (
               <DropdownMenu key={i}>
                 <DropdownMenuTrigger asChild>
                   <Button variant="ghost">
+                    {link.icon && link.icon}
                     {link.label}
                     <ChevronDown className="ml-2 h-4 w-4" />
                   </Button>
@@ -92,13 +86,14 @@ export function Header() {
               </DropdownMenu>
             ) : (
               <a key={i} className={buttonVariants({ variant: 'ghost' })} href={link.href}>
+                {link.icon && link.icon}
                 {link.label}
               </a>
             )
           )}
-					<a href="https://imagerouter.io/login" className={buttonVariants({ variant: "outline" })}>
-            Sign In
-          </a>
+					<a href="https://imagerouter.io/login" className={buttonVariants({ variant: "outline", className: "w-full border-[#95d63f] text-black hover:bg-[#95d63f] hover:text-black dark:text-white dark:hover:text-white" })}>
+						Sign In
+					</a>
           <AnimatedThemeToggler />
 				</div>
 				<Button size="icon" variant="outline" onClick={() => setOpen(!open)} className="md:hidden">
@@ -129,12 +124,13 @@ export function Header() {
 								})}
 								href={link.href}
 							>
+                {link.icon && link.icon}
 								{link.label}
 							</a>
 						))}
 					</div>
 					<div className="flex flex-col gap-2">
-						<a href="https://imagerouter.io/login" className={buttonVariants({ variant: "outline", className: "w-full" })}>
+						<a href="https://imagerouter.io/login" className={buttonVariants({ variant: "outline", className: "w-full border-[#95d63f] text-black hover:bg-[#95d63f] hover:text-black dark:text-white dark:hover:text-white" })}>
 							Sign In
 						</a>
 					</div>
