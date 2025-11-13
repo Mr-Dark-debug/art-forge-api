@@ -21,15 +21,7 @@ export const Hero = () => {
     <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
       {/* PrismaticBurst Background */}
       <div className="absolute inset-0 z-0">
-        <PrismaticBurst
-          animationType="rotate3d"
-          intensity={1.5}
-          speed={0.2}
-          distort={0.5}
-          rayCount={12}
-          mixBlendMode="lighten"
-          colors={['#a855f7', '#ec4899', '#06b6d4']}
-        />
+        <PrismaticBurst />
       </div>
 
       {/* Gradient Overlay */}
