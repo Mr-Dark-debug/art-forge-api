@@ -20,10 +20,9 @@ export const AnimatedThemeToggler = ({
   const buttonRef = useRef<HTMLButtonElement>(null)
 
   useEffect(() => {
-    // Initialize theme based on localStorage or system preference
+    // Initialize theme based on localStorage - always default to light mode
     const savedTheme = localStorage.getItem("theme")
-    const systemPrefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches
-    const initialTheme = savedTheme === "dark" || (!savedTheme && systemPrefersDark)
+    const initialTheme = savedTheme === "dark"
     
     // Apply the initial theme
     if (initialTheme) {
