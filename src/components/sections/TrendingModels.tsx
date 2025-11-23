@@ -1,6 +1,10 @@
 "use client";
 
 import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { ChevronRight, Sparkles, Star } from "lucide-react";
+
 // Import brand SVGs
 import bytedanceLogo from "@/assets/brand_svgs/bytedance-color.svg";
 import fluxLogo from "@/assets/brand_svgs/flux.svg";
@@ -14,7 +18,7 @@ import rundiffusionLogo from "@/assets/brand_svgs/recraft.svg"; // Using recraft
 const trendingModels = [
   {
     id: "gemini-2.5-flash",
-    name: "gemini-2.5-flash",
+    name: "Gemini 2.5",
     provider: "google",
     imageCount: "5.29K",
     rank: 1,
@@ -22,7 +26,7 @@ const trendingModels = [
   },
   {
     id: "FLUX-1-schnell:free",
-    name: "FLUX-1-schnell:free",
+    name: "Flux Schnell",
     provider: "black-forest-labs",
     imageCount: "4.78K",
     rank: 2,
@@ -30,7 +34,7 @@ const trendingModels = [
   },
   {
     id: "qwen-image",
-    name: "qwen-image",
+    name: "Gwen Image",
     provider: "qwen",
     imageCount: "1.59K",
     rank: 3,
@@ -38,161 +42,185 @@ const trendingModels = [
   },
   {
     id: "seedream-4",
-    name: "seedream-4",
+    name: "Seed Dream",
     provider: "bytedance",
-    imageCount: "1.01K",
+    imageCount: "1.07K",
     rank: 4,
     logo: bytedanceLogo
   },
   {
     id: "FLUX-1-schnell",
-    name: "FLUX-1-schnell",
+    name: "Flux Schnell",
     provider: "black-forest-labs",
-    imageCount: "992",
+    imageCount: "892",
     rank: 5,
     logo: fluxLogo
   },
   {
     id: "sdxl-turbo:free",
-    name: "sdxl-turbo:free",
+    name: "SDXL Turbo",
     provider: "stabilityai",
-    imageCount: "740",
+    imageCount: "870",
     rank: 6,
     logo: stabilityLogo
   },
   {
     id: "gpt-image-1",
-    name: "gpt-image-1",
+    name: "GPT Image",
     provider: "openai",
-    imageCount: "390",
+    imageCount: "751",
     rank: 7,
     logo: openaiLogo
   },
   {
     id: "qwen-image-edit-plus",
-    name: "qwen-image-edit-plus",
+    name: "Gwen Edit",
     provider: "qwen",
-    imageCount: "326",
+    imageCount: "680",
     rank: 8,
     logo: null // No logo for Qwen
-  },
-  {
-    id: "HiDream-I1-Full:free",
-    name: "HiDream-I1-Full:free",
-    provider: "HiDream-ai",
-    imageCount: "305",
-    rank: 9,
-    logo: hiddreamLogo
-  },
-  {
-    id: "Juggernaut-Pro-Flux",
-    name: "Juggernaut-Pro-Flux",
-    provider: "run-diffusion",
-    imageCount: "215",
-    rank: 10,
-    logo: rundiffusionLogo
   },
 ];
 
 export function TrendingModels() {
-  // Function to get medal color and icon based on rank
-  const getMedalStyle = (rank: number) => {
-    switch (rank) {
-      case 1:
-        return {
-          bgColor: "bg-yellow-100 dark:bg-yellow-900/30",
-          textColor: "text-yellow-800 dark:text-yellow-200",
-          borderColor: "border-yellow-300 dark:border-yellow-700",
-          label: "Gold"
-        };
-      case 2:
-        return {
-          bgColor: "bg-gray-100 dark:bg-gray-700/30",
-          textColor: "text-gray-800 dark:text-gray-200",
-          borderColor: "border-gray-300 dark:border-gray-600",
-          label: "Silver"
-        };
-      case 3:
-        return {
-          bgColor: "bg-amber-100 dark:bg-amber-900/30",
-          textColor: "text-amber-800 dark:text-amber-200",
-          borderColor: "border-amber-300 dark:border-amber-700",
-          label: "Bronze"
-        };
-      default:
-        return {
-          bgColor: "bg-primary/10",
-          textColor: "text-primary",
-          borderColor: "border-border",
-          label: ""
-        };
-    }
-  };
+  // Split models into featured (top 3) and regular
+  const featuredModels = trendingModels.slice(0, 3);
+  const regularModels = trendingModels.slice(3);
 
   return (
-    <section className="py-24 px-4">
-      <div className="container mx-auto">
-        <div className="text-center mb-16">
-          <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">Trending Models</h2>
-          <p className="mt-3 text-lg text-muted-foreground">
-            The most popular models on the platform in the last 7 days.
+    <section className="py-16 px-4 bg-background">
+      <div className="container mx-auto max-w-7xl">
+        {/* Section Header */}
+        <div className="text-center mb-12">
+          <h2 className="text-4xl md:text-5xl font-bold tracking-tight mb-4">
+            Trending Models
+          </h2>
+          <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+            Explore the most popular AI models on our platform right now.
           </p>
         </div>
-        
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
-          {trendingModels.map((model) => {
-            const medalStyle = getMedalStyle(model.rank);
-            return (
-              <Card 
-                key={model.id} 
-                className={`overflow-hidden hover:shadow-lg transition-shadow bg-card/80 backdrop-blur-sm border ${medalStyle.borderColor} ${
-                  model.rank <= 3 ? "ring-2 ring-offset-2 ring-offset-background" : ""
-                } ${
-                  model.rank === 1 
-                    ? "ring-yellow-400 dark:ring-yellow-600" 
-                    : model.rank === 2 
-                      ? "ring-gray-300 dark:ring-gray-500" 
-                      : model.rank === 3 
-                        ? "ring-amber-400 dark:ring-amber-600" 
-                        : ""
-                }`}
-              >
-                <CardContent className="p-6">
-                  <div className="flex items-start justify-between">
-                    <div>
-                      <div className="flex items-center gap-2 mb-3">
-                        <span className={`text-lg font-bold px-2 py-1 rounded-full ${medalStyle.bgColor} ${medalStyle.textColor}`}>
-                          #{model.rank}
-                        </span>
-                        {model.rank <= 3 && (
-                          <span className="text-xs font-medium px-2 py-1 rounded-full bg-muted text-muted-foreground">
-                            {medalStyle.label}
-                          </span>
-                        )}
-                      </div>
-                      <div className="flex items-center gap-2 mb-2">
-                        {model.logo ? (
-                          <img 
-                            src={model.logo} 
-                            alt={`${model.provider} logo`} 
-                            className="h-8 md:h-10 w-auto object-contain dark:brightness-0 dark:invert"
-                          />
-                        ) : (
-                          <div className="h-8 md:h-10 w-10 flex items-center justify-center bg-muted rounded-lg">
-                            <span className="text-xs font-bold text-muted-foreground">No Logo</span>
-                          </div>
-                        )}
-                      </div>
-                      <h3 className="font-semibold text-lg mb-3 text-foreground">{model.name}</h3>
+
+        {/* Featured Models - Top 3 */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+          {featuredModels.map((model) => (
+            <Card
+              key={model.id}
+              className="group relative overflow-hidden border-2 hover:border-primary/50 transition-all duration-300 hover:shadow-xl bg-gradient-to-br from-card to-card/50"
+            >
+              <CardContent className="p-6">
+                {/* Trending Badge */}
+                <div className="flex items-center justify-between mb-4">
+                  <Badge
+                    className={`
+                      px-3 py-1 text-xs font-bold uppercase tracking-wider
+                      ${model.rank === 1
+                        ? 'bg-yellow-500 text-black hover:bg-yellow-500'
+                        : model.rank === 2
+                          ? 'bg-gray-400 text-white hover:bg-gray-400'
+                          : 'bg-orange-500 text-white hover:bg-orange-500'
+                      }
+                    `}
+                  >
+                    #{model.rank} Trending
+                  </Badge>
+                  {model.rank === 1 && (
+                    <Star className="w-5 h-5 text-yellow-500 fill-yellow-500" />
+                  )}
+                </div>
+
+                {/* Provider Logo */}
+                <div className="mb-4 h-12 flex items-center">
+                  {model.logo ? (
+                    <img
+                      src={model.logo}
+                      alt={`${model.provider} logo`}
+                      className="h-10 w-auto object-contain dark:brightness-0 dark:invert"
+                    />
+                  ) : (
+                    <div className="h-10 w-10 flex items-center justify-center bg-muted rounded-lg">
+                      <Sparkles className="w-5 h-5 text-muted-foreground" />
                     </div>
-                  </div>
-                  <div className="flex items-center justify-between mt-4">
-                    <span className="text-sm font-medium text-muted-foreground">{model.imageCount} images</span>
-                  </div>
-                </CardContent>
-              </Card>
-            );
-          })}
+                  )}
+                </div>
+
+                {/* Model Name */}
+                <h3 className="font-bold text-xl mb-2 text-foreground group-hover:text-primary transition-colors">
+                  {model.name}
+                </h3>
+
+                {/* Stats */}
+                <div className="flex items-center justify-between mb-4">
+                  <span className="text-sm text-muted-foreground flex items-center gap-1">
+                    <Sparkles className="w-4 h-4" />
+                    {model.imageCount} Images
+                  </span>
+                </div>
+
+                {/* Explore Button */}
+                <Button
+                  className="w-full group/btn"
+                  variant="outline"
+                >
+                  Explore
+                  <ChevronRight className="w-4 h-4 ml-2 group-hover/btn:translate-x-1 transition-transform" />
+                </Button>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+
+        {/* Regular Models Grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          {regularModels.map((model) => (
+            <Card
+              key={model.id}
+              className="group overflow-hidden hover:border-primary/50 transition-all duration-300 hover:shadow-lg"
+            >
+              <CardContent className="p-5">
+                {/* Rank Badge */}
+                <div className="flex items-center justify-between mb-3">
+                  <Badge variant="secondary" className="text-xs">
+                    #{model.rank}
+                  </Badge>
+                </div>
+
+                {/* Provider Logo */}
+                <div className="mb-3 h-8 flex items-center">
+                  {model.logo ? (
+                    <img
+                      src={model.logo}
+                      alt={`${model.provider} logo`}
+                      className="h-6 w-auto object-contain dark:brightness-0 dark:invert"
+                    />
+                  ) : (
+                    <div className="h-6 w-6 flex items-center justify-center bg-muted rounded">
+                      <Sparkles className="w-4 h-4 text-muted-foreground" />
+                    </div>
+                  )}
+                </div>
+
+                {/* Model Name */}
+                <h4 className="font-semibold text-base mb-2 text-foreground line-clamp-1 group-hover:text-primary transition-colors">
+                  {model.name}
+                </h4>
+
+                {/* Stats */}
+                <p className="text-xs text-muted-foreground mb-3">
+                  {model.imageCount} images
+                </p>
+
+                {/* Explore Button */}
+                <Button
+                  size="sm"
+                  className="w-full"
+                  variant="ghost"
+                >
+                  Explore
+                  <ChevronRight className="w-3 h-3 ml-1" />
+                </Button>
+              </CardContent>
+            </Card>
+          ))}
         </div>
       </div>
     </section>
