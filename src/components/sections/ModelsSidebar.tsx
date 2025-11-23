@@ -1,5 +1,3 @@
-
-
 import React, { useState } from "react";
 import { Sidebar, SidebarBody, SidebarLink, useSidebar } from "@/components/ui/sidebar";
 import {
@@ -71,13 +69,14 @@ export function ModelsSidebar({
         <div
             className={cn(
                 "rounded-md flex flex-col md:flex-row bg-gray-100 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 overflow-hidden",
-                "h-[calc(100vh-4rem)]"
+                "h-[calc(100vh-4rem)] sticky top-16" // Fix: Make sidebar sticky
             )}
         >
             <Sidebar open={open} setOpen={setOpen}>
                 <SidebarBody className="justify-between gap-10">
                     <div className="flex flex-col flex-1 overflow-y-auto overflow-x-hidden">
-                        {open ? <Logo /> : <LogoIcon />}
+                        {/* Fix: Remove Art Forge logo and text */}
+                        {/* {open ? <Logo /> : <LogoIcon />} */}
 
                         <div className="mt-8 flex flex-col gap-2">
                             {/* Filter Header - Only visible when open */}
@@ -131,11 +130,11 @@ export function ModelsSidebar({
                     <div>
                         <SidebarLink
                             link={{
-                                label: "Prashant",
+                                label: "User", // Fix: Change from "Prashant" to "User"
                                 href: "#",
                                 icon: (
                                     <div className="h-7 w-7 rounded-full bg-gradient-to-r from-[#95d63f] to-emerald-500 flex items-center justify-center text-black font-bold text-xs">
-                                        P
+                                        U
                                     </div>
                                 ),
                             }}
@@ -147,34 +146,35 @@ export function ModelsSidebar({
     );
 }
 
-const Logo = () => {
-    return (
-        <Link
-            to="/"
-            className="font-normal flex space-x-2 items-center text-sm text-black py-1 relative z-20"
-        >
-            <div className="h-5 w-6 bg-[#95d63f] rounded-br-lg rounded-tr-sm rounded-tl-lg rounded-bl-sm flex-shrink-0" />
-            <motion.span
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                className="font-medium text-black dark:text-white whitespace-pre"
-            >
-                Art Forge
-            </motion.span>
-        </Link>
-    );
-};
+// Fix: Remove Logo and LogoIcon components
+// const Logo = () => {
+//     return (
+//         <Link
+//             to="/"
+//             className="font-normal flex space-x-2 items-center text-sm text-black py-1 relative z-20"
+//         >
+//             <div className="h-5 w-6 bg-[#95d63f] rounded-br-lg rounded-tr-sm rounded-tl-lg rounded-bl-sm flex-shrink-0" />
+//             <motion.span
+//                 initial={{ opacity: 0 }}
+//                 animate={{ opacity: 1 }}
+//                 className="font-medium text-black dark:text-white whitespace-pre"
+//             >
+//                 Art Forge
+//             </motion.span>
+//         </Link>
+//     );
+// };
 
-const LogoIcon = () => {
-    return (
-        <Link
-            to="/"
-            className="font-normal flex space-x-2 items-center text-sm text-black py-1 relative z-20"
-        >
-            <div className="h-5 w-6 bg-[#95d63f] rounded-br-lg rounded-tr-sm rounded-tl-lg rounded-bl-sm flex-shrink-0" />
-        </Link>
-    );
-};
+// const LogoIcon = () => {
+//     return (
+//         <Link
+//             to="/"
+//             className="font-normal flex space-x-2 items-center text-sm text-black py-1 relative z-20"
+//         >
+//             <div className="h-5 w-6 bg-[#95d63f] rounded-br-lg rounded-tr-sm rounded-tl-lg rounded-bl-sm flex-shrink-0" />
+//         </Link>
+//     );
+// };
 
 function FilterContent({
     filters,
@@ -201,7 +201,8 @@ function FilterContent({
             <AccordionItem value="model-type" className="border-none">
                 <AccordionTrigger className="py-2 hover:no-underline hover:bg-neutral-100 dark:hover:bg-neutral-800 rounded-md px-2">
                     <div className="flex items-center gap-2 text-sm">
-                        <Layers className="h-4 w-4 text-[#95d63f]" />
+                        {/* Fix: Update icon color scheme */}
+                        <Layers className="h-4 w-4 text-black dark:text-white" />
                         <span>Model Type</span>
                     </div>
                 </AccordionTrigger>
@@ -218,7 +219,8 @@ function FilterContent({
                                     id={type.id}
                                     checked={filters.modelType.includes(type.id)}
                                     onCheckedChange={() => toggleFilter("modelType", type.id)}
-                                    className="data-[state=checked]:bg-[#95d63f] data-[state=checked]:text-black border-neutral-500"
+                                    // Fix: Style checkboxes for light/dark mode
+                                    className="data-[state=checked]:bg-[#95d63f] data-[state=checked]:text-black border-neutral-500 dark:data-[state=checked]:bg-purple-500 dark:data-[state=checked]:text-white"
                                 />
                                 <label
                                     htmlFor={type.id}
@@ -235,11 +237,13 @@ function FilterContent({
                                     id="free-only"
                                     checked={filters.freeOnly}
                                     onCheckedChange={() => onFilterChange({ ...filters, freeOnly: !filters.freeOnly })}
-                                    className="data-[state=checked]:bg-[#95d63f] data-[state=checked]:text-black border-neutral-500"
+                                    // Fix: Style checkboxes for light/dark mode
+                                    className="data-[state=checked]:bg-[#95d63f] data-[state=checked]:text-black border-neutral-500 dark:data-[state=checked]:bg-purple-500 dark:data-[state=checked]:text-white"
                                 />
                                 <label
                                     htmlFor="free-only"
-                                    className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer text-[#95d63f]"
+                                    // Fix: Change "Free Models Only" text color to orange
+                                    className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer text-orange-500"
                                 >
                                     Free Models Only
                                 </label>
@@ -253,14 +257,16 @@ function FilterContent({
             <AccordionItem value="providers" className="border-none">
                 <AccordionTrigger className="py-2 hover:no-underline hover:bg-neutral-100 dark:hover:bg-neutral-800 rounded-md px-2">
                     <div className="flex items-center gap-2 text-sm">
-                        <Zap className="h-4 w-4 text-[#95d63f]" />
+                        {/* Fix: Update icon color scheme */}
+                        <Zap className="h-4 w-4 text-black dark:text-white" />
                         <span>Providers</span>
                     </div>
                 </AccordionTrigger>
                 <AccordionContent className="px-2 pb-2">
                     <div className="space-y-2 pt-2">
                         <div className="relative mb-2">
-                            <Search className="absolute left-2 top-1/2 transform -translate-y-1/2 h-3 w-3 text-muted-foreground" />
+                            {/* Fix: Update icon color scheme */}
+                            <Search className="absolute left-2 top-1/2 transform -translate-y-1/2 h-3 w-3 text-black dark:text-white" />
                             <Input
                                 placeholder="Search providers..."
                                 className="h-8 pl-8 text-xs bg-transparent border-neutral-200 dark:border-neutral-700"
@@ -268,7 +274,8 @@ function FilterContent({
                                 onChange={(e) => setProviderSearch(e.target.value)}
                             />
                         </div>
-                        <ScrollArea className="h-[150px] pr-2">
+                        {/* Fix: Hide scrollbar but maintain scrolling functionality */}
+                        <ScrollArea className="h-[150px] pr-2 scrollbar-hide">
                             <div className="space-y-2">
                                 {filteredProviders.map((provider) => (
                                     <div key={provider} className="flex items-center space-x-2">
@@ -276,7 +283,8 @@ function FilterContent({
                                             id={`provider-${provider}`}
                                             checked={filters.providers.includes(provider)}
                                             onCheckedChange={() => toggleFilter("providers", provider)}
-                                            className="data-[state=checked]:bg-[#95d63f] data-[state=checked]:text-black border-neutral-500"
+                                            // Fix: Style checkboxes for light/dark mode
+                                            className="data-[state=checked]:bg-[#95d63f] data-[state=checked]:text-black border-neutral-500 dark:data-[state=checked]:bg-purple-500 dark:data-[state=checked]:text-white"
                                         />
                                         <label
                                             htmlFor={`provider-${provider}`}
@@ -305,7 +313,8 @@ function FilterContent({
             <AccordionItem value="pricing" className="border-none">
                 <AccordionTrigger className="py-2 hover:no-underline hover:bg-neutral-100 dark:hover:bg-neutral-800 rounded-md px-2">
                     <div className="flex items-center gap-2 text-sm">
-                        <DollarSign className="h-4 w-4 text-[#95d63f]" />
+                        {/* Fix: Update icon color scheme */}
+                        <DollarSign className="h-4 w-4 text-black dark:text-white" />
                         <span>Pricing Range</span>
                     </div>
                 </AccordionTrigger>
@@ -331,12 +340,14 @@ function FilterContent({
             <AccordionItem value="arena-score" className="border-none">
                 <AccordionTrigger className="py-2 hover:no-underline hover:bg-neutral-100 dark:hover:bg-neutral-800 rounded-md px-2">
                     <div className="flex items-center gap-2 text-sm">
-                        <Trophy className="h-4 w-4 text-[#95d63f]" />
+                        {/* Fix: Update icon color scheme */}
+                        <Trophy className="h-4 w-4 text-black dark:text-white" />
                         <span>Arena Score</span>
                     </div>
                 </AccordionTrigger>
                 <AccordionContent className="px-2 pb-2">
                     <div className="space-y-4 pt-4 px-1">
+                        {/* Fix: Ensure the green/purple color is visible when sliding */}
                         <Slider
                             defaultValue={[900, 1400]}
                             value={filters.arenaScore}
@@ -344,7 +355,7 @@ function FilterContent({
                             max={1400}
                             step={10}
                             onValueChange={(value) => onFilterChange({ ...filters, arenaScore: value })}
-                            className="py-2"
+                            className="py-2 [&>span]:bg-[#95d63f] dark:[&>span]:bg-purple-500"
                         />
                         <div className="flex items-center justify-between text-xs text-muted-foreground">
                             <span>{filters.arenaScore[0]}</span>
@@ -358,7 +369,8 @@ function FilterContent({
             <AccordionItem value="features" className="border-none">
                 <AccordionTrigger className="py-2 hover:no-underline hover:bg-neutral-100 dark:hover:bg-neutral-800 rounded-md px-2">
                     <div className="flex items-center gap-2 text-sm">
-                        <Settings className="h-4 w-4 text-[#95d63f]" />
+                        {/* Fix: Update icon color scheme */}
+                        <Settings className="h-4 w-4 text-black dark:text-white" />
                         <span>Features</span>
                     </div>
                 </AccordionTrigger>
@@ -374,7 +386,8 @@ function FilterContent({
                                     id={feature.id}
                                     checked={filters.features.includes(feature.id)}
                                     onCheckedChange={() => toggleFilter("features", feature.id)}
-                                    className="data-[state=checked]:bg-[#95d63f] data-[state=checked]:text-black border-neutral-500"
+                                    // Fix: Style checkboxes for light/dark mode
+                                    className="data-[state=checked]:bg-[#95d63f] data-[state=checked]:text-black border-neutral-500 dark:data-[state=checked]:bg-purple-500 dark:data-[state=checked]:text-white"
                                 />
                                 <label
                                     htmlFor={feature.id}
